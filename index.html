@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataTables - Row Childs</title>
+    <link rel="stylesheet" type="text/css" href="./assets/style/jquery.dataTables.min.css">
+    <style>
+        td.details-control {
+            background: url('./assets/images/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
+        tr.shown td.details-control {
+            background: url('./assets/images/details_close.png') no-repeat center center;
+        }
+    </style>
+</head>
+<body>
+    <table>
+        <table id="example" class="display" style="width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>nome</th>
+                    <th>realizado1</th>
+                    <th>realizado2</th>
+                    <th>realizado3</th>
+                </tr>
+            </thead>
+            <tfoot>
+                <tr>
+                    <th></th>
+                    <th>nome</th>
+                    <th>realizado1</th>
+                    <th>realizado2</th>
+                    <th>realizado3</th>
+                </tr>
+            </tfoot>
+        </table>
+    </table>
+</body>
+
+<script src="./assets/js/jquery-3.5.1.js" type="text/javascript"></script>
+<script src="./assets/js/jquery.dataTables.min.js" type="text/javascript"></script>
+<script type="text/javascript">
+    /* Formatting function for row details - modify as you need */
+    function format ( d ) {
+        // `d` is the original data object for the row
+        html = '<table class="display" style="width:100%">';
+        
+        d.filhos.forEach(function(filho){
+            html += '<tr>'+
+                '<td></td>'+
+                '<td>'+filho.nome+'</td>'+
+                '<td>'+filho.realizado1+'</td>'+
+                '<td>'+filho.realizado2+'</td>'+
+                '<td>'+filho.realizado3+'</td>'+
+            '</tr>';
+        });
+            
+        html += '</table>';
+        return html;
+    }
+    
+    $(document).ready(function() {
+        var table = $('#example').DataTable( {
+            "ajax": "./assets/data/dados.json",
+            "columns": [
+                {
+                    "className":      'details-control',
+                    "orderable":      false,
+                    "data":           null,
+                    "defaultContent": ''
+                },
+                { "data": "nome" },
+                { "data": "realizado1" },
+                { "data": "realizado2" },
+                { "data": "realizado3" }
+            ],
+            "order": [[1, 'asc']]
+        } );
+        
+        // Add event listener for opening and closing details
+        $('#example tbody').on('click', 'td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+    
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+            }
+        } );
+    } );
+</script>
+
+</html>
